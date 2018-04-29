@@ -146,26 +146,51 @@ const questions = [
 let userDog = [];
 
 dogCompare = () => {
-  //   let userDog = [];
+  let userDog = [];
+  let dogScoresArr = [];
+  let dogNamesArr = [];
   for (i = 1; i < 10; i++) {
     let questionValue = $(`#question-${i}`).val();
     userDog.push(questionValue);
   }
+  alert(userDog);
+  for (dog in dogList) {
+    let scoresArr = dogList[dog].scores;
+    let dogScore = 0;
+    const dogName = dogList[dog].name;
+    for (i = 0; i < scoresArr.length; i++) {
+      dogScore += Math.abs(userDog[i] - scoresArr[i]);
+    }
+    console.log(dogName);
+    dogNamesArr.push(dogName);
+    console.log(dogScore);
+    dogScoresArr.push(dogScore);
+  }
+  minDogScore = Math.min(...dogScoresArr);
+  console.log("Min score: " + minDogScore);
+  minIndex = dogScoresArr.indexOf(minDogScore);
+  console.log("Index of lowest score is " + minIndex);
+  bestDogFriend = dogNamesArr[minIndex];
+  console.log(
+    "The best match for " +
+      $("#dog-name").val() +
+      " is " +
+      bestDogFriend +
+      " with a friend score of " +
+      minDogScore +
+      " (the lower the better)!"
+  );
 };
-
-
-
-
 
 $(document).on("click", "#dog-submit", function() {
   for (i = 1; i < 10; i++) {
     if (!$("#dog-name").val()) {
-      alert("no dog name!");
+      alert("Please enter a name for your dog!");
       return false;
     }
     let questionValue = $(`#question-${i}`).val();
-    if (!questionValue) {
-      alert("NOT A NUMBER");
+    if (!questionValue || questionValue < 0 || questionValue > 6) {
+      alert("Please verify that the form is filled out correctly!");
       return false;
     }
   }
