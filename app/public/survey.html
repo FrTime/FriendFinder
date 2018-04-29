@@ -5,28 +5,26 @@
 <head>
     <meta charset="UTF-8">
     <!-- Importing Meyerweb reset -->
-    <link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="https://meyerweb.com/eric/tools/css/reset/reset.css">
     <!-- Importing Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Importing materialize.css-->
-    <link type="text/css" rel="stylesheet" href="assets/css/materialize.min.css" media="screen,projection" />
-    <!-- Importing local style sheet -->
-    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trivia Game</title>
+    <title>Playmate Finder</title>
 </head>
 
 <body>
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript" src="assets/javascript/materialize.min.js"></script>
-    <script type="text/javascript" src="../data/friends.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <!-- <script type="text/javascript" src="./../data/friends.js"></script> -->
 
     <main>
         <br>
         <br>
         <div class="row">
-            <form class="col s8 offset-s2">
+            <form class="col s6 offset-s3">
                 <div class="row">
                     <div class="input-field">
                         <input placeholder="Spot" id="dog-name" type="text" required minlength="1" class="validate">
@@ -41,7 +39,7 @@
                     <div class="row">
                         <div class="input-field">
                             <input placeholder="3" id="question-2" type="number" class="validate" required min="1" max="5">
-                            <label for="age">How old is your dog? 1 (0-1 year), 2 (2-3 years), 3 (4-5 years), 4 (6-7 years), 5 (8+ years)</label>
+                            <label for="age">How old is your dog? 1 (0-2 years), 2 (2-4 years), 3 (4-6 years), 4 (6-8 years), 5 (8+ years)</label>
                         </div>
                     </div>
                     <div class="row">
@@ -99,6 +97,107 @@
             </div>
 
             <!-- MODAL GOES HERE -->
+            <div class="modal fade" id="bestFriend" tabindex="-1" role="dialog" aria-labelledby="bestFriendFound" aria-hidden="true">
+
+            </div>
+            <script type="text/javascript">
+                const currentURL = window.location.origin;
+                let friends = [];
+                $.ajax({ url: currentURL + "/api/friends", method: "GET" }).done(res => {
+
+                    for (i = 0; i < res.length; i++) {
+
+                        friends.push(res[i]);
+
+                    }
+                    // alert(friends);
+                });
+
+
+                let userDog = [];
+
+                dogCompare = () => {
+                    let userDog = [];
+                    let dogScoresArr = [];
+                    let dogNamesArr = [];
+                    for (i = 1; i < 10; i++) {
+                        let questionValue = $(`#question-${i}`).val();
+                        userDog.push(questionValue);
+                    }
+                    // alert(userDog);
+                    for (dog in friends) {
+                        let scoresArr = friends[dog].scores;
+                        let dogScore = 0;
+                        const dogName = friends[dog].name;
+                        for (i = 0; i < scoresArr.length; i++) {
+                            dogScore += Math.abs(userDog[i] - scoresArr[i]);
+                        }
+                        console.log(dogName);
+                        dogNamesArr.push(dogName);
+                        console.log(dogScore);
+                        dogScoresArr.push(dogScore);
+                    }
+                    minDogScore = Math.min(...dogScoresArr);
+                    console.log("Min score: " + minDogScore);
+                    minIndex = dogScoresArr.indexOf(minDogScore);
+                    console.log("Index of lowest score is " + minIndex);
+                    bestDogFriend = dogNamesArr[minIndex];
+                    console.log(
+                        "The best match for " +
+                        $("#dog-name").val() +
+                        " is " +
+                        bestDogFriend +
+                        " with a friend score of " +
+                        minDogScore +
+                        " (the lower the better)!"
+                    );
+                    $("#bestFriend").html(`
+  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title">Your playmate has been found!</h6>
+                        </div>
+                        <div class="modal-body">
+                        <br>
+                        <img src="../data/images/${bestDogFriend.toLowerCase()}.png" alt="Your New Best Friend" height="300">
+                        <br> <br>
+                            <p class="pmodText"> ${$(
+                            "#dog-name"
+                        ).val()}'s new best friend is <b>${bestDogFriend}</b>!</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="/" class="btn btn-secondary" data-dismiss="modal">Go Home</a>
+                        </div>
+                    </div>
+                </div>
+  `);
+                    $("#bestFriend").modal("open");
+                    console.log("modal should pop up now");
+                };
+
+                $(document).on("click", "#dog-submit", function () {
+                    for (i = 1; i < 10; i++) {
+                        if (!$("#dog-name").val()) {
+                            alert("Please enter a name for your dog!");
+                            return false;
+                        }
+                        let questionValue = $(`#question-${i}`).val();
+                        if (!questionValue || questionValue < 0 || questionValue > 6) {
+                            alert("Please verify that the form is filled out correctly!");
+                            return false;
+                        }
+                    }
+                    // alert("OK");
+                    dogCompare();
+                    return false;
+                });
+
+                $(document).ready(function () {
+                    $(".modal").modal({
+                        dismissible: false
+                    });
+                });
+            </script>
 
     </main>
 
