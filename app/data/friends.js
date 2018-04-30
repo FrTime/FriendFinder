@@ -36,7 +36,7 @@ const friends = [
   },
   {
     name: "Puddin'",
-    photo: "images/pudding.png",
+    photo: "images/puddin'.png",
     scores: [5, 4, 2, 4, 4, 1, 1, 2, 5]
   },
   {
